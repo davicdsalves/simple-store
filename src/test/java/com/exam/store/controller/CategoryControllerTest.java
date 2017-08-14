@@ -3,6 +3,7 @@ package com.exam.store.controller;
 import com.exam.store.controller.dto.CategoryDTO;
 import com.exam.store.model.Category;
 import com.exam.store.repository.CategoryRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,9 +19,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import static com.exam.store.controller.ControllerConstants.CATEGORY_ROOT;
 import static com.exam.store.controller.ControllerConstants.GET_CATEGORY_ID_PATH;
+import static com.exam.store.controller.ControllerConstants.UPDATE_CATEGORY_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -54,6 +58,32 @@ public class CategoryControllerTest {
 
         mockMvc
                 .perform(get(url).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "someuser", password = "somepassword")
+    public void shouldNotFindForUpdate() throws Exception {
+        Long categoryID = 999L;
+        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + UPDATE_CATEGORY_PATH)
+                .buildAndExpand(categoryID).toString();
+        String body = createEmptyCategoryBody();
+
+        mockMvc
+                .perform(post(url).contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = "someuser", password = "somepassword")
+    public void shouldNotFindForDelete() throws Exception {
+        Long categoryID = 999L;
+        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + GET_CATEGORY_ID_PATH)
+                .buildAndExpand(categoryID).toString();
+        String body = createEmptyCategoryBody();
+
+        mockMvc
+                .perform(delete(url).contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isNotFound()).andReturn();
     }
 
@@ -73,6 +103,11 @@ public class CategoryControllerTest {
         CategoryDTO categoryDTO = mapper.readValue(result.getResponse().getContentAsString(), CategoryDTO.class);
         assertThat(categoryDTO.getName(), is(categoryName));
         assertThat(categoryDTO.getId(), is(category.getId()));
+    }
+
+    private String createEmptyCategoryBody() throws JsonProcessingException {
+        CategoryDTO request = new CategoryDTO();
+        return mapper.writeValueAsString(request);
     }
 
 

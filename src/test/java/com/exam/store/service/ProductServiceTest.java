@@ -3,6 +3,8 @@ package com.exam.store.service;
 import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.factory.DTOFactory;
 import com.exam.store.fixer.FixerClient;
+import com.exam.store.fixer.response.FixerResponse;
+import com.exam.store.model.Currency;
 import com.exam.store.model.Product;
 import com.exam.store.repository.CategoryRepository;
 import com.exam.store.repository.ProductRepository;
@@ -12,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -115,6 +118,26 @@ public class ProductServiceTest extends BaseServiceTest {
         ProductDTO dto = createProductDTO(productName, id);
         ProductDTO savedDTO = target.save(dto);
         verify(productRepository).save(any(Product.class));
+        assertThat(savedDTO.getName(), is(productName));
+    }
+
+    @Test
+    public void shouldSaveProductWithDiffCurrency() throws Exception {
+        Long id = 1L;
+        String productName = "product";
+        String currency = Currency.BRL.toString();
+        when(categoryRepository.findById(id)).thenReturn(Optional.of(createCategory()));
+        when(productRepository.save(any(Product.class))).thenReturn(createProduct());
+        ProductDTO dto = createProductDTO(productName, id);
+        dto.setPrice(100L);
+        dto.setCurrency(currency);
+        FixerResponse fixerResponse = new FixerResponse();
+        fixerResponse.getRates().put(currency, BigDecimal.valueOf(3.7517));
+        when(fixerClient.search(currency)).thenReturn(fixerResponse);
+
+        ProductDTO savedDTO = target.save(dto);
+        verify(productRepository).save(any(Product.class));
+        verify(fixerClient).search(currency);
         assertThat(savedDTO.getName(), is(productName));
     }
 

@@ -29,4 +29,14 @@ public class CategoryService {
         return factory.createDTOs(categories);
     }
 
+    public CategoryDTO save(CategoryDTO dto) {
+        Optional<Category> validateCategory = repository.findByName(dto.getName());
+        if (validateCategory.isPresent()) {
+            String errorMessage = "There is already a category named %s";
+            throw new IllegalArgumentException(String.format(errorMessage, dto.getName()));
+        }
+        Category category = repository.save(new Category(dto.getName()));
+        return factory.createDTO(category);
+    }
+
 }

@@ -5,3 +5,9 @@ store:
 spring:
   jpa:
     show-sql: true
+
+fixer:
+  url: https://api.fixer.io/latest
+  parameter-name: symbols
+  timeout: 10_000
+  max-connections: 10

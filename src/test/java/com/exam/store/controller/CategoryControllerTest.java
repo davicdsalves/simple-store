@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static com.exam.store.controller.ControllerConstants.CATEGORY_ROOT;
+import static com.exam.store.controller.ControllerConstants.DELETE_CATEGORY_PATH;
 import static com.exam.store.controller.ControllerConstants.GET_CATEGORY_ID_PATH;
 import static com.exam.store.controller.ControllerConstants.UPDATE_CATEGORY_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -123,7 +124,7 @@ public class CategoryControllerTest {
     @WithMockUser(username = "someuser", password = "somepassword")
     public void shouldNotFindForDelete() throws Exception {
         Long categoryID = 999L;
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + GET_CATEGORY_ID_PATH)
+        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + DELETE_CATEGORY_PATH)
                 .buildAndExpand(categoryID).toString();
         String body = createEmptyCategoryBody();
 
@@ -131,6 +132,8 @@ public class CategoryControllerTest {
                 .perform(delete(url).contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isNotFound()).andReturn();
     }
+
+
 
     @Test
     @WithMockUser(username = "someuser", password = "somepassword")
@@ -149,6 +152,40 @@ public class CategoryControllerTest {
         assertThat(categoryDTO.getName(), is(categoryName));
         assertThat(categoryDTO.getId(), is(category.getId()));
     }
+
+    @Test
+    @WithMockUser(username = "someuser", password = "somepassword")
+    public void shouldSaveCategory() throws Exception {
+        String body = createCategoryBody("categoryOne");
+        mockMvc
+                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockUser(username = "someuser", password = "somepassword")
+    public void shouldUpdateCategory() throws Exception {
+        String categoryOneName = "categoryOne";
+        String requestOne = createCategoryBody(categoryOneName);
+
+        MvcResult result = mockMvc
+                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(requestOne))
+                .andExpect(status().isOk()).andReturn();
+        CategoryDTO categoryDTO = mapper.readValue(result.getResponse().getContentAsString(), CategoryDTO.class);
+
+        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + UPDATE_CATEGORY_PATH)
+                .buildAndExpand(categoryDTO.getId()).toString();
+        String categoryTwoName = "categoryTwo";
+        String requestTwo = createCategoryBody(categoryTwoName);
+
+        MvcResult resultTwo = mockMvc
+                .perform(post(url).contentType(MediaType.APPLICATION_JSON).content(requestTwo))
+                .andExpect(status().isOk()).andReturn();
+        CategoryDTO updatedDTO = mapper.readValue(resultTwo.getResponse().getContentAsString(), CategoryDTO.class);
+        assertThat(updatedDTO.getName(), is(categoryTwoName));
+        assertThat(updatedDTO.getId(), is(categoryDTO.getId()));
+    }
+
 
     private String createEmptyCategoryBody() throws JsonProcessingException {
         CategoryDTO request = new CategoryDTO();

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,6 +56,15 @@ public class CategoryController {
         if (categoryService.exists(id)) {
             CategoryDTO categoryDTO = categoryService.update(id, request);
             return ResponseEntity.ok(categoryDTO);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity delete(@PathVariable Long id) {
+        if (categoryService.exists(id)) {
+            categoryService.delete(id);
+            return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();
     }

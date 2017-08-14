@@ -31,6 +31,12 @@ public class ProductService {
         return createDTOs(categories);
     }
 
+    //melhorar para ser -> exist by category id
+    public Optional<ProductDTO> findByCategoryId(Long id) {
+        Optional<Product> product = repository.findFirstByCategoryId(id);
+        return product.map(this::createDTO);
+    }
+
     private List<ProductDTO> createDTOs(Iterable<Product> products) {
         List<ProductDTO> dtos = new ArrayList<>();
         products.forEach(c -> dtos.add(createDTO(c)));

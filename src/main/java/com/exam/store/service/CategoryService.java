@@ -1,6 +1,7 @@
 package com.exam.store.service;
 
 import com.exam.store.controller.dto.CategoryDTO;
+import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.factory.DTOFactory;
 import com.exam.store.model.Category;
 import com.exam.store.repository.CategoryRepository;
@@ -12,10 +13,12 @@ import java.util.Optional;
 @Service
 public class CategoryService {
     private CategoryRepository repository;
+    private ProductService productService;
     private DTOFactory factory;
 
-    public CategoryService(CategoryRepository repository, DTOFactory factory) {
+    public CategoryService(CategoryRepository repository, ProductService productService, DTOFactory factory) {
         this.repository = repository;
+        this.productService = productService;
         this.factory = factory;
     }
 
@@ -56,5 +59,14 @@ public class CategoryService {
 
     private CategoryDTO save(Category category) {
         return factory.createDTO(repository.save(category));
+    }
+
+    public void delete(Long id) {
+        Optional<ProductDTO> productByCategoryId = productService.findByCategoryId(id);
+        if (productByCategoryId.isPresent()) {
+            String errorMessage = "Not allowed to remove a category that has products related to it.";
+            throw new IllegalArgumentException(errorMessage);
+        }
+        repository.delete(id);
     }
 }

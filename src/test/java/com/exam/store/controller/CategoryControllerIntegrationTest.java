@@ -1,11 +1,8 @@
 package com.exam.store.controller;
 
 import com.exam.store.controller.dto.CategoryDTO;
-import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.model.Category;
 import com.exam.store.repository.CategoryRepository;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.UUID;
 
 import static com.exam.store.controller.ControllerConstants.CATEGORY_ROOT;
 import static com.exam.store.controller.ControllerConstants.DELETE_CATEGORY_PATH;
@@ -36,13 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
-public class CategoryControllerTest {
-    private ObjectMapper mapper = new ObjectMapper();
-    private final String username = "someuser";
-    private final String password = "somepassword";
+public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
     @Autowired
     private CategoryRepository categoryRepository;
 
@@ -218,26 +207,6 @@ public class CategoryControllerTest {
         mockMvc
                 .perform(delete(url).contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isOk());
-    }
-
-    private String createEmptyCategoryBody() throws JsonProcessingException {
-        CategoryDTO request = new CategoryDTO();
-        return mapper.writeValueAsString(request);
-    }
-
-    private String createCategoryBody(String name) throws JsonProcessingException {
-        CategoryDTO request = new CategoryDTO();
-        request.setName(name);
-        return mapper.writeValueAsString(request);
-    }
-
-    private String createProductBody(CategoryDTO categoryDTO) throws JsonProcessingException {
-        ProductDTO request = new ProductDTO("product", categoryDTO);
-        return mapper.writeValueAsString(request);
-    }
-
-    private String getUUIDName() {
-        return UUID.randomUUID().toString();
     }
 
 }

@@ -26,7 +26,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CategoryServiceTest {
+public class CategoryServiceTest extends BaseServiceTest {
     @Mock
     private CategoryRepository repository;
     @Mock
@@ -131,19 +131,9 @@ public class CategoryServiceTest {
     @Test
     public void shouldDelete() throws Exception {
         Long id = 1L;
-        Category category = createCategory();
-        Product product = new Product("product", category);
         when(productRepository.findFirstByCategoryId(id)).thenReturn(Optional.empty());
         target.delete(id);
         verify(repository).delete(id);
-    }
-
-    private Category createCategory() {
-        return createCategory("category");
-    }
-
-    private Category createCategory(String name) {
-        return new Category(name);
     }
 
 }

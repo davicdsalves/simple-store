@@ -2,6 +2,8 @@ package com.exam.store.service;
 
 import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.factory.DTOFactory;
+import com.exam.store.fixer.FixerClient;
+import com.exam.store.fixer.response.FixerResponse;
 import com.exam.store.model.Category;
 import com.exam.store.model.Currency;
 import com.exam.store.model.Product;
@@ -10,6 +12,7 @@ import com.exam.store.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,11 +20,15 @@ import java.util.Optional;
 public class ProductService {
     private ProductRepository repository;
     private CategoryRepository categoryRepository;
+    private FixerClient fixerClient;
     private DTOFactory factory;
 
-    public ProductService(ProductRepository repository, CategoryRepository categoryRepository, DTOFactory factory) {
+    public ProductService(ProductRepository repository,
+                          CategoryRepository categoryRepository,
+                          FixerClient fixerClient, DTOFactory factory) {
         this.repository = repository;
         this.categoryRepository = categoryRepository;
+        this.fixerClient = fixerClient;
         this.factory = factory;
     }
 
@@ -41,15 +48,25 @@ public class ProductService {
 
     public ProductDTO save(ProductDTO dto) {
         Category category = validateProduct(dto);
-        Product Product = new Product(dto.getName(), category);
+        Long price = getCurrencyPrice(dto);
+        Product Product = new Product(dto.getName(), price, category);
         return save(Product);
     }
 
     public ProductDTO update(Long id, ProductDTO request) {
         Category category = validateProduct(request);
         Product product = repository.findOne(id);
-        product.setName(request.getName());
-        product.setCategory(category);
+        if (!product.getName().equalsIgnoreCase(request.getName())) {
+            product.setName(request.getName());
+        }
+        if (!product.getCategory().equals(category)) {
+            product.setCategory(category);
+        }
+        if (!product.getPrice().equals(request.getPrice())) {
+            Long price = getCurrencyPrice(request);
+            product.setPrice(price);
+        }
+
         return save(product);
     }
 
@@ -76,6 +93,22 @@ public class ProductService {
                 throw new IllegalArgumentException(String.format(errorMessage, productCurrency));
             }
         }
+    }
+
+    private Long getCurrencyPrice(ProductDTO dto) {
+        Currency currency = Currency.EUR;
+        String productCurrency = dto.getCurrency();
+        if (StringUtils.hasText(productCurrency)) {
+            currency = Currency.get(productCurrency);
+        }
+        if (!Currency.EUR.equals(currency)) {
+            String currencyName = currency.toString();
+            FixerResponse response = fixerClient.search(currencyName);
+            BigDecimal currencyRate = response.getRates().get(currencyName);
+            BigDecimal convertedPrice = currencyRate.multiply(BigDecimal.valueOf(dto.getPrice()));
+            return convertedPrice.longValue();
+        }
+        return dto.getPrice();
     }
 
     private ProductDTO save(Product Product) {

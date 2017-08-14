@@ -1,6 +1,7 @@
 package com.exam.store.controller;
 
 import com.exam.store.controller.dto.CategoryDTO;
+import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.model.Category;
 import com.exam.store.repository.CategoryRepository;
 import com.exam.store.repository.ProductRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import static com.exam.store.controller.ControllerConstants.CATEGORY_ROOT;
 import static com.exam.store.controller.ControllerConstants.DELETE_CATEGORY_PATH;
 import static com.exam.store.controller.ControllerConstants.GET_CATEGORY_ID_PATH;
+import static com.exam.store.controller.ControllerConstants.PRODUCT_ROOT;
 import static com.exam.store.controller.ControllerConstants.UPDATE_CATEGORY_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -127,11 +129,31 @@ public class CategoryControllerTest {
         Long categoryID = 999L;
         String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + DELETE_CATEGORY_PATH)
                 .buildAndExpand(categoryID).toString();
-        String body = createEmptyCategoryBody();
 
         mockMvc
-                .perform(delete(url).contentType(MediaType.APPLICATION_JSON).content(body))
+                .perform(delete(url).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @WithMockUser(username = username, password = password)
+    public void shouldNotDeleteForProductWithCategory() throws Exception {
+        String categoryBody = createCategoryBody("categoryOne");
+        MvcResult savedCategoryResult = mockMvc
+                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(categoryBody))
+                .andExpect(status().isOk()).andReturn();
+        CategoryDTO categoryDTO = mapper.readValue(savedCategoryResult.getResponse().getContentAsString(), CategoryDTO.class);
+
+        String productBody = createProductBody(categoryDTO);
+        mockMvc
+                .perform(put(PRODUCT_ROOT).contentType(MediaType.APPLICATION_JSON).content(productBody))
+                .andExpect(status().isOk());
+
+        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + DELETE_CATEGORY_PATH)
+                .buildAndExpand(categoryDTO.getId()).toString();
+        mockMvc
+                .perform(delete(url).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -200,7 +222,6 @@ public class CategoryControllerTest {
                 .perform(delete(url).contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isOk());
     }
-    
 
     private String createEmptyCategoryBody() throws JsonProcessingException {
         CategoryDTO request = new CategoryDTO();
@@ -210,6 +231,11 @@ public class CategoryControllerTest {
     private String createCategoryBody(String name) throws JsonProcessingException {
         CategoryDTO request = new CategoryDTO();
         request.setName(name);
+        return mapper.writeValueAsString(request);
+    }
+
+    private String createProductBody(CategoryDTO categoryDTO) throws JsonProcessingException {
+        ProductDTO request = new ProductDTO("product", categoryDTO);
         return mapper.writeValueAsString(request);
     }
 

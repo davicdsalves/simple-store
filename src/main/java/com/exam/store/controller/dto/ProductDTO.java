@@ -8,6 +8,9 @@ public class ProductDTO {
     @NotNull
     private CategoryDTO category;
 
+    public ProductDTO() {
+    }
+
     public ProductDTO(String name, CategoryDTO category) {
         this.name = name;
         this.category = category;

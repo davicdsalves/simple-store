@@ -8,23 +8,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import static com.exam.store.controller.ControllerConstants.CATEGORY_ROOT;
-import static com.exam.store.controller.ControllerConstants.DELETE_CATEGORY_PATH;
-import static com.exam.store.controller.ControllerConstants.GET_CATEGORY_ID_PATH;
-import static com.exam.store.controller.ControllerConstants.PRODUCT_ROOT;
-import static com.exam.store.controller.ControllerConstants.UPDATE_CATEGORY_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -38,37 +26,22 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     public void shouldNotAuthorizeRetrieveCategory() throws Exception {
         Long categoryID = 1L;
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + GET_CATEGORY_ID_PATH)
-                .buildAndExpand(categoryID).toString();
-
-        mockMvc
-                .perform(get(url).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized()).andReturn();
+        searchCategory(categoryID, status().isUnauthorized());
     }
 
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldNotRetrieveCategory() throws Exception {
         Long categoryID = 999L;
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + GET_CATEGORY_ID_PATH)
-                .buildAndExpand(categoryID).toString();
-
-        mockMvc
-                .perform(get(url).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+        searchCategory(categoryID, status().isNotFound());
     }
 
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldNotFindForUpdate() throws Exception {
         Long categoryID = 999L;
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + UPDATE_CATEGORY_PATH)
-                .buildAndExpand(categoryID).toString();
         String body = createEmptyCategoryBody();
-
-        mockMvc
-                .perform(post(url).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isNotFound());
+        updateCategory(categoryID, body, status().isNotFound());
     }
 
     @Test
@@ -76,13 +49,8 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
     public void shouldNotSaveCategoryWithSameName() throws Exception {
         String body = createCategoryBody(getUUIDName());
 
-        mockMvc
-                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isOk());
-
-        mockMvc
-                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isBadRequest());
+        createCategory(body);
+        createCategory(body, status().isBadRequest());
     }
 
     @Test
@@ -91,55 +59,31 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
         String categoryOneName = getUUIDName();
         String requestOne = createCategoryBody(categoryOneName);
         String requestTwo = createCategoryBody(getUUIDName());
-
-        mockMvc
-                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(requestOne))
-                .andExpect(status().isOk());
-        MvcResult result = mockMvc
-                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(requestTwo))
-                .andExpect(status().isOk()).andReturn();
-        CategoryDTO categoryDTO = mapper.readValue(result.getResponse().getContentAsString(), CategoryDTO.class);
-
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + UPDATE_CATEGORY_PATH)
-                .buildAndExpand(categoryDTO.getId()).toString();
         String requestThree = createCategoryBody(categoryOneName);
 
-        mockMvc
-                .perform(post(url).contentType(MediaType.APPLICATION_JSON).content(requestThree))
-                .andExpect(status().isBadRequest());
+        createCategory(requestOne);
+        CategoryDTO categoryDTO = createCategory(requestTwo);
+
+        updateCategory(categoryDTO.getId(), requestThree, status().isBadRequest());
     }
 
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldNotFindForDelete() throws Exception {
         Long categoryID = 999L;
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + DELETE_CATEGORY_PATH)
-                .buildAndExpand(categoryID).toString();
-
-        mockMvc
-                .perform(delete(url).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound());
+        deleteCategory(categoryID, status().isNotFound());
     }
 
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldNotDeleteForProductWithCategory() throws Exception {
         String categoryBody = createCategoryBody("categoryOne");
-        MvcResult savedCategoryResult = mockMvc
-                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(categoryBody))
-                .andExpect(status().isOk()).andReturn();
-        CategoryDTO categoryDTO = mapper.readValue(savedCategoryResult.getResponse().getContentAsString(), CategoryDTO.class);
+        CategoryDTO categoryDTO = createCategory(categoryBody);
 
         String productBody = createProductBody(categoryDTO);
-        mockMvc
-                .perform(put(PRODUCT_ROOT).contentType(MediaType.APPLICATION_JSON).content(productBody))
-                .andExpect(status().isOk());
+        createProduct(productBody);
 
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + DELETE_CATEGORY_PATH)
-                .buildAndExpand(categoryDTO.getId()).toString();
-        mockMvc
-                .perform(delete(url).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+        deleteCategory(categoryDTO.getId(), status().isBadRequest());
     }
 
     @Test
@@ -148,14 +92,7 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
         String categoryName = "category";
         Category category = categoryRepository.save(new Category(categoryName));
 
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + GET_CATEGORY_ID_PATH)
-                .buildAndExpand(category.getId()).toString();
-
-        MvcResult result = mockMvc
-                .perform(get(url).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andReturn();
-
-        CategoryDTO categoryDTO = mapper.readValue(result.getResponse().getContentAsString(), CategoryDTO.class);
+        CategoryDTO categoryDTO = searchCategory(category.getId());
         assertThat(categoryDTO.getName(), is(categoryName));
         assertThat(categoryDTO.getId(), is(category.getId()));
     }
@@ -164,9 +101,7 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
     @WithMockUser(username = username, password = password)
     public void shouldSaveCategory() throws Exception {
         String body = createCategoryBody(getUUIDName());
-        mockMvc
-                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isOk());
+        createCategory(body);
     }
 
     @Test
@@ -175,20 +110,12 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
         String categoryOneName = getUUIDName();
         String requestOne = createCategoryBody(categoryOneName);
 
-        MvcResult result = mockMvc
-                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(requestOne))
-                .andExpect(status().isOk()).andReturn();
-        CategoryDTO categoryDTO = mapper.readValue(result.getResponse().getContentAsString(), CategoryDTO.class);
+        CategoryDTO categoryDTO = createCategory(requestOne);
 
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + UPDATE_CATEGORY_PATH)
-                .buildAndExpand(categoryDTO.getId()).toString();
         String categoryTwoName = "categoryTwo";
         String requestTwo = createCategoryBody(categoryTwoName);
 
-        MvcResult resultTwo = mockMvc
-                .perform(post(url).contentType(MediaType.APPLICATION_JSON).content(requestTwo))
-                .andExpect(status().isOk()).andReturn();
-        CategoryDTO updatedDTO = mapper.readValue(resultTwo.getResponse().getContentAsString(), CategoryDTO.class);
+        CategoryDTO updatedDTO = updateCategory(categoryDTO.getId(), requestTwo);
         assertThat(updatedDTO.getName(), is(categoryTwoName));
         assertThat(updatedDTO.getId(), is(categoryDTO.getId()));
     }
@@ -197,16 +124,9 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
     @WithMockUser(username = username, password = password)
     public void shouldDeleteCategory() throws Exception {
         String body = createCategoryBody(getUUIDName());
-        MvcResult result = mockMvc
-                .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isOk()).andReturn();
-        CategoryDTO categoryDTO = mapper.readValue(result.getResponse().getContentAsString(), CategoryDTO.class);
-        String url = UriComponentsBuilder.fromUriString(CATEGORY_ROOT + DELETE_CATEGORY_PATH)
-                .buildAndExpand(categoryDTO.getId()).toString();
+        CategoryDTO categoryDTO = createCategory(body);
 
-        mockMvc
-                .perform(delete(url).contentType(MediaType.APPLICATION_JSON).content(body))
-                .andExpect(status().isOk());
+        deleteCategory(categoryDTO.getId());
     }
 
 }

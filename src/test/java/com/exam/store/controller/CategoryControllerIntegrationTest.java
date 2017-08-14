@@ -47,7 +47,7 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldNotSaveCategoryWithSameName() throws Exception {
-        String body = createCategoryBody(getUUIDName());
+        String body = createCategoryBody(getRandomName());
 
         createCategory(body);
         createCategory(body, status().isBadRequest());
@@ -56,15 +56,14 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldNotUpdateCategoryWithSameName() throws Exception {
-        String categoryOneName = getUUIDName();
+        String categoryOneName = getRandomName();
         String requestOne = createCategoryBody(categoryOneName);
-        String requestTwo = createCategoryBody(getUUIDName());
-        String requestThree = createCategoryBody(categoryOneName);
 
         createCategory(requestOne);
-        CategoryDTO categoryDTO = createCategory(requestTwo);
+        CategoryDTO categoryDTO = createRandomCategory();
 
-        updateCategory(categoryDTO.getId(), requestThree, status().isBadRequest());
+        String requestTwo = createCategoryBody(categoryOneName);
+        updateCategory(categoryDTO.getId(), requestTwo, status().isBadRequest());
     }
 
     @Test
@@ -100,14 +99,14 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldSaveCategory() throws Exception {
-        String body = createCategoryBody(getUUIDName());
+        String body = createCategoryBody(getRandomName());
         createCategory(body);
     }
 
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldUpdateCategory() throws Exception {
-        String categoryOneName = getUUIDName();
+        String categoryOneName = getRandomName();
         String requestOne = createCategoryBody(categoryOneName);
 
         CategoryDTO categoryDTO = createCategory(requestOne);
@@ -123,9 +122,7 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldDeleteCategory() throws Exception {
-        String body = createCategoryBody(getUUIDName());
-        CategoryDTO categoryDTO = createCategory(body);
-
+        CategoryDTO categoryDTO = createRandomCategory();
         deleteCategory(categoryDTO.getId());
     }
 

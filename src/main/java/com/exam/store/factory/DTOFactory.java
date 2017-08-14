@@ -30,7 +30,7 @@ public class DTOFactory {
 
     public ProductDTO createDTO(Product product) {
         CategoryDTO categoryDTO = this.createDTO(product.getCategory());
-        return new ProductDTO(product.getName(), categoryDTO);
+        return new ProductDTO(product.getId(), product.getName(), categoryDTO);
     }
 
 

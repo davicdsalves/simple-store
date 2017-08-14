@@ -13,13 +13,16 @@ public class Product {
 
     private String name;
 
+    private Long price;
+
     @ManyToOne(optional = false)
     private Category category;
 
     Product() {}
 
-    public Product(String name, Category category) {
+    public Product(String name, Long price, Category category) {
         this.name = name;
+        this.price = price;
         this.category = category;
     }
 
@@ -41,6 +44,14 @@ public class Product {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
     }
 
     @Override

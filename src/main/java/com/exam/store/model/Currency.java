@@ -32,6 +32,7 @@ public enum Currency {
     TRY,
     USD,
     ZAR,
+    EUR,
     UNKNOWN;
 
     public static Currency get(String name) {

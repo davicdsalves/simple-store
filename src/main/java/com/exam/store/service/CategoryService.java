@@ -33,7 +33,7 @@ public class CategoryService {
 
     public List<CategoryDTO> findAll() {
         Iterable<Category> categories = repository.findAll();
-        return factory.createDTOs(categories);
+        return factory.createCategoryDTOs(categories);
     }
 
     public CategoryDTO save(CategoryDTO dto) {

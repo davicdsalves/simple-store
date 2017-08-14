@@ -4,7 +4,6 @@ import com.exam.store.controller.dto.CategoryDTO;
 import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.model.Category;
 import com.exam.store.repository.CategoryRepository;
-import com.exam.store.repository.ProductRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
@@ -18,6 +17,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.UUID;
 
 import static com.exam.store.controller.ControllerConstants.CATEGORY_ROOT;
 import static com.exam.store.controller.ControllerConstants.DELETE_CATEGORY_PATH;
@@ -44,8 +45,6 @@ public class CategoryControllerTest {
     private MockMvc mockMvc;
     @Autowired
     private CategoryRepository categoryRepository;
-    @Autowired
-    private ProductRepository productRepository;
 
     @Test
     public void shouldNotAuthorizeRetrieveCategory() throws Exception {
@@ -86,9 +85,7 @@ public class CategoryControllerTest {
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldNotSaveCategoryWithSameName() throws Exception {
-        CategoryDTO request = new CategoryDTO();
-        request.setName("categoryOne");
-        String body = mapper.writeValueAsString(request);
+        String body = createCategoryBody(getUUIDName());
 
         mockMvc
                 .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(body))
@@ -102,9 +99,9 @@ public class CategoryControllerTest {
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldNotUpdateCategoryWithSameName() throws Exception {
-        String categoryOneName = "categoryOne";
+        String categoryOneName = getUUIDName();
         String requestOne = createCategoryBody(categoryOneName);
-        String requestTwo = createCategoryBody("categoryTwo");
+        String requestTwo = createCategoryBody(getUUIDName());
 
         mockMvc
                 .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(requestOne))
@@ -177,7 +174,7 @@ public class CategoryControllerTest {
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldSaveCategory() throws Exception {
-        String body = createCategoryBody("categoryOne");
+        String body = createCategoryBody(getUUIDName());
         mockMvc
                 .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isOk());
@@ -186,7 +183,7 @@ public class CategoryControllerTest {
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldUpdateCategory() throws Exception {
-        String categoryOneName = "categoryOne";
+        String categoryOneName = getUUIDName();
         String requestOne = createCategoryBody(categoryOneName);
 
         MvcResult result = mockMvc
@@ -210,7 +207,7 @@ public class CategoryControllerTest {
     @Test
     @WithMockUser(username = username, password = password)
     public void shouldDeleteCategory() throws Exception {
-        String body = createCategoryBody("categoryOne");
+        String body = createCategoryBody(getUUIDName());
         MvcResult result = mockMvc
                 .perform(put(CATEGORY_ROOT).contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isOk()).andReturn();
@@ -239,5 +236,8 @@ public class CategoryControllerTest {
         return mapper.writeValueAsString(request);
     }
 
+    private String getUUIDName() {
+        return UUID.randomUUID().toString();
+    }
 
 }

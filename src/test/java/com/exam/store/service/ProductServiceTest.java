@@ -92,17 +92,27 @@ public class ProductServiceTest extends BaseServiceTest {
         target.save(dto);
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailSaveForInvalidCurrency() throws Exception {
+        Long id = 1L;
+        String productName = "product";
+        when(categoryRepository.findById(id)).thenReturn(Optional.of(createCategory()));
+        when(productRepository.save(any(Product.class))).thenReturn(createProduct());
+        ProductDTO dto = createProductDTO(productName, id);
+        dto.setCurrency("ZMW");
+        target.save(dto);
+    }
+
     @Test
     public void shouldSaveProduct() throws Exception {
         Long id = 1L;
         String productName = "product";
         when(categoryRepository.findById(id)).thenReturn(Optional.of(createCategory()));
         when(productRepository.save(any(Product.class))).thenReturn(createProduct());
-        ProductDTO dto = createProductDTO(productName, id, "category");
+        ProductDTO dto = createProductDTO(productName, id);
         ProductDTO savedDTO = target.save(dto);
         verify(productRepository).save(any(Product.class));
         assertThat(savedDTO.getName(), is(productName));
-
     }
 
     @Test
@@ -114,7 +124,7 @@ public class ProductServiceTest extends BaseServiceTest {
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(createCategory()));
         when(productRepository.findOne(productId)).thenReturn(oldProduct);
         when(productRepository.save(any(Product.class))).thenReturn(createProduct(productName));
-        ProductDTO request = createProductDTO(productName, categoryId, "category");
+        ProductDTO request = createProductDTO(productName, categoryId);
         ProductDTO savedDTO = target.update(productId, request);
         assertThat(savedDTO.getName(), is(productName));
     }

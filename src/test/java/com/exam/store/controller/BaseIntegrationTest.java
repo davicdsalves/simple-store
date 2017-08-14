@@ -57,7 +57,7 @@ abstract class BaseIntegrationTest {
     }
 
     String createProductBody(CategoryDTO categoryDTO) throws JsonProcessingException {
-        ProductDTO request = new ProductDTO("product", categoryDTO);
+        ProductDTO request = new ProductDTO(1L, "product", categoryDTO);
         return mapper.writeValueAsString(request);
     }
 

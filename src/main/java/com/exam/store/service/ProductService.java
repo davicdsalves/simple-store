@@ -3,10 +3,12 @@ package com.exam.store.service;
 import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.factory.DTOFactory;
 import com.exam.store.model.Category;
+import com.exam.store.model.Currency;
 import com.exam.store.model.Product;
 import com.exam.store.repository.CategoryRepository;
 import com.exam.store.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +64,18 @@ public class ProductService {
             String errorMessage = "There is no category with id %d";
             throw new IllegalArgumentException(String.format(errorMessage, categoryId));
         }
+        validateCurrency(dto.getCurrency());
         return validateCategory.get();
+    }
+
+    private void validateCurrency(String productCurrency) {
+        if (StringUtils.hasText(productCurrency)) {
+            Currency currency = Currency.get(productCurrency);
+            if (Currency.UNKNOWN.equals(currency)) {
+                String errorMessage = "Currency %s is not allowed";
+                throw new IllegalArgumentException(String.format(errorMessage, productCurrency));
+            }
+        }
     }
 
     private ProductDTO save(Product Product) {

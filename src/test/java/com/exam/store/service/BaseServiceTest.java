@@ -23,12 +23,12 @@ public class BaseServiceTest {
         return new Category(name);
     }
 
-    ProductDTO createProductDTO(String name, Long categoryId, String categoryName) {
-        return new ProductDTO(name, new CategoryDTO(categoryId, categoryName));
+    ProductDTO createProductDTO(String name, Long categoryId) {
+        return new ProductDTO(1L, name, new CategoryDTO(categoryId, "category"));
     }
 
     ProductDTO createProductDTO(Long categoryId) {
-        return createProductDTO("product", categoryId, "category");
+        return createProductDTO("product", categoryId);
     }
 
 

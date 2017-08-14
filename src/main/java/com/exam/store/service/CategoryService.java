@@ -19,6 +19,10 @@ public class CategoryService {
         this.factory = factory;
     }
 
+    public boolean exists(Long id) {
+        return repository.exists(id);
+    }
+
     public Optional<CategoryDTO> findById(Long id) {
         Optional<Category> category = repository.findById(id);
         return category.map(factory::createDTO);
@@ -30,13 +34,27 @@ public class CategoryService {
     }
 
     public CategoryDTO save(CategoryDTO dto) {
+        validateCategory(dto);
+        Category category = new Category(dto.getName());
+        return save(category);
+    }
+
+    public CategoryDTO update(Long id, CategoryDTO request) {
+        validateCategory(request);
+        Category category = repository.findOne(id);
+        category.setName(request.getName());
+        return save(category);
+    }
+
+    private void validateCategory(CategoryDTO dto) {
         Optional<Category> validateCategory = repository.findByName(dto.getName());
         if (validateCategory.isPresent()) {
             String errorMessage = "There is already a category named %s";
             throw new IllegalArgumentException(String.format(errorMessage, dto.getName()));
         }
-        Category category = repository.save(new Category(dto.getName()));
-        return factory.createDTO(category);
     }
 
+    private CategoryDTO save(Category category) {
+        return factory.createDTO(repository.save(category));
+    }
 }

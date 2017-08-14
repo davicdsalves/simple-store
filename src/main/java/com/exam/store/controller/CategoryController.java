@@ -16,8 +16,14 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
+import static com.exam.store.controller.ControllerConstants.CATEGORY_ROOT;
+import static com.exam.store.controller.ControllerConstants.DELETE_CATEGORY_PATH;
+import static com.exam.store.controller.ControllerConstants.GET_ALL_CATEGORIES_PATH;
+import static com.exam.store.controller.ControllerConstants.GET_CATEGORY_ID_PATH;
+import static com.exam.store.controller.ControllerConstants.UPDATE_CATEGORY_PATH;
+
 @Controller
-@RequestMapping("/v1/category")
+@RequestMapping(CATEGORY_ROOT)
 public class CategoryController {
 
     private CategoryService categoryService;
@@ -26,13 +32,13 @@ public class CategoryController {
         this.categoryService = categoryService;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(GET_CATEGORY_ID_PATH)
     public ResponseEntity<CategoryDTO> get(@PathVariable Long id) {
         Optional<CategoryDTO> categoryDTO = categoryService.findById(id);
         return categoryDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/")
+    @GetMapping(GET_ALL_CATEGORIES_PATH)
     public ResponseEntity<List<CategoryDTO>> getAll() {
         return ResponseEntity.ok(categoryService.findAll());
     }
@@ -43,7 +49,7 @@ public class CategoryController {
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping("/{id}")
+    @PostMapping(UPDATE_CATEGORY_PATH)
     public ResponseEntity<CategoryDTO> update(@PathVariable Long id,
                                               @RequestBody CategoryDTO request) {
         if (categoryService.exists(id)) {
@@ -53,7 +59,7 @@ public class CategoryController {
         return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(DELETE_CATEGORY_PATH)
     public ResponseEntity delete(@PathVariable Long id) {
         if (categoryService.exists(id)) {
             categoryService.delete(id);

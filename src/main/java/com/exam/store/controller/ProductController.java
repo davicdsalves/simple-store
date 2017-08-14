@@ -15,8 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.validation.Valid;
 import java.util.Optional;
 
+import static com.exam.store.controller.ControllerConstants.DELETE_PRODUCT_PATH;
+import static com.exam.store.controller.ControllerConstants.GET_PRODUCT_ID_PATH;
+import static com.exam.store.controller.ControllerConstants.PRODUCT_ROOT;
+import static com.exam.store.controller.ControllerConstants.UPDATE_PRODUCT_PATH;
+
 @Controller
-@RequestMapping("/v1/product")
+@RequestMapping(PRODUCT_ROOT)
 public class ProductController {
     private ProductService productService;
 
@@ -24,7 +29,7 @@ public class ProductController {
         this.productService = productService;
     }
 
-    @GetMapping(value = "/{id}")
+    @GetMapping(value = GET_PRODUCT_ID_PATH)
     public ResponseEntity<ProductDTO> get(@PathVariable Long id) {
         Optional<ProductDTO> productDTO = productService.findById(id);
         return productDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
@@ -36,7 +41,7 @@ public class ProductController {
         return ResponseEntity.ok(dto);
     }
 
-    @PostMapping("/{id}")
+    @PostMapping(UPDATE_PRODUCT_PATH)
     public ResponseEntity<ProductDTO> update(@PathVariable Long id,
                                               @RequestBody ProductDTO request) {
         if (productService.exists(id)) {
@@ -46,7 +51,7 @@ public class ProductController {
         return ResponseEntity.notFound().build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping(DELETE_PRODUCT_PATH)
     public ResponseEntity delete(@PathVariable Long id) {
         if (productService.exists(id)) {
             productService.delete(id);

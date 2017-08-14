@@ -7,20 +7,34 @@ public class ProductDTO {
     @NotNull
     private String name;
     @NotNull
+    private Long price;
+    private String currency;
+    @NotNull
     private CategoryDTO category;
 
     public ProductDTO() {
-    }
-
-    public ProductDTO(String name, CategoryDTO category) {
-        this.name = name;
-        this.category = category;
     }
 
     public ProductDTO(Long id, String name, CategoryDTO category) {
         this.id = id;
         this.name = name;
         this.category = category;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public Long getPrice() {
+        return price;
     }
 
     public Long getId() {

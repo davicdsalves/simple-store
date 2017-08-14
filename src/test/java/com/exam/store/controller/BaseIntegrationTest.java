@@ -30,8 +30,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 abstract class BaseIntegrationTest {
     @Autowired
     MockMvc mockMvc;
-
-    private ObjectMapper mapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper mapper;
     final String username = "someuser";
     final String password = "somepassword";
 

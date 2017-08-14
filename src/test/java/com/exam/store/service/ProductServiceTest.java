@@ -2,6 +2,7 @@ package com.exam.store.service;
 
 import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.factory.DTOFactory;
+import com.exam.store.fixer.FixerClient;
 import com.exam.store.model.Product;
 import com.exam.store.repository.CategoryRepository;
 import com.exam.store.repository.ProductRepository;
@@ -30,12 +31,14 @@ public class ProductServiceTest extends BaseServiceTest {
     private CategoryRepository categoryRepository;
     @Mock
     private ProductRepository productRepository;
+    @Mock
+    private FixerClient fixerClient;
     private DTOFactory factory = new DTOFactory();
     private ProductService target;
 
     @Before
     public void setUp() throws Exception {
-        target = new ProductService(productRepository, categoryRepository, factory);
+        target = new ProductService(productRepository, categoryRepository, fixerClient, factory);
     }
 
     @Test

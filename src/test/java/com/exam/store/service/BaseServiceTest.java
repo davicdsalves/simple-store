@@ -8,11 +8,11 @@ import com.exam.store.model.Product;
 public class BaseServiceTest {
 
     Product createProduct(String name) {
-        return new Product(name, createCategory());
+        return new Product(name, 100L, createCategory());
     }
 
     Product createProduct() {
-        return new Product("product", createCategory());
+        return new Product("product", 100L, createCategory());
     }
 
     Category createCategory() {

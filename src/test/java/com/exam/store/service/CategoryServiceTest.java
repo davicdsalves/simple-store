@@ -123,7 +123,7 @@ public class CategoryServiceTest extends BaseServiceTest {
     public void shouldFailDeleteForCategoryWithProduct() throws Exception {
         Long id = 1L;
         Category category = createCategory();
-        Product product = new Product("product", category);
+        Product product = new Product("product", 100L, category);
         when(productRepository.findFirstByCategoryId(id)).thenReturn(Optional.of(product));
         target.delete(id);
     }

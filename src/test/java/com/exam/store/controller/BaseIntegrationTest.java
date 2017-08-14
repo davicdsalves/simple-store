@@ -9,7 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.UUID;
 
-class BaseIntegrationTest {
+abstract class BaseIntegrationTest {
     @Autowired
     MockMvc mockMvc;
 

@@ -49,6 +49,15 @@ public class CategoryService {
         return save(category);
     }
 
+    public void delete(Long id) {
+        Optional<ProductDTO> productByCategoryId = productService.findByCategoryId(id);
+        if (productByCategoryId.isPresent()) {
+            String errorMessage = "Not allowed to remove a category that has products related to it.";
+            throw new IllegalArgumentException(errorMessage);
+        }
+        repository.delete(id);
+    }
+
     private void validateCategory(CategoryDTO dto) {
         Optional<Category> validateCategory = repository.findByName(dto.getName());
         if (validateCategory.isPresent()) {
@@ -59,14 +68,5 @@ public class CategoryService {
 
     private CategoryDTO save(Category category) {
         return factory.createDTO(repository.save(category));
-    }
-
-    public void delete(Long id) {
-        Optional<ProductDTO> productByCategoryId = productService.findByCategoryId(id);
-        if (productByCategoryId.isPresent()) {
-            String errorMessage = "Not allowed to remove a category that has products related to it.";
-            throw new IllegalArgumentException(errorMessage);
-        }
-        repository.delete(id);
     }
 }

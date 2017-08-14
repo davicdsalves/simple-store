@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -24,5 +25,10 @@ public class CategoryController {
     public ResponseEntity<CategoryDTO> get(@PathVariable Long id) {
         Optional<CategoryDTO> categoryDTO = categoryService.findById(id);
         return categoryDTO.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping(value = "/")
+    public ResponseEntity<List<CategoryDTO>> getAll() {
+        return ResponseEntity.ok(categoryService.findAll());
     }
 }

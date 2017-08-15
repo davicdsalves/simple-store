@@ -42,3 +42,4 @@ Some improvements for next version:
 - Retrieve all products for a parent category 
 - Use OAuth? Or at least credentials in db. 
 - Add endpoint to remove category parent?
+- Concurrency, use @Version?

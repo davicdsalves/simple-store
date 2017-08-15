@@ -42,6 +42,10 @@ public class CategoryService {
     public CategoryDTO save(CategoryDTO dto) {
         validateCategory(dto);
         Category category = new Category(dto.getName());
+        if (dto.getParentID() != null) {
+            validateParent(dto.getParentID());
+            category.setParent(new Category(dto.getParentID()));
+        }
         return save(category);
     }
 
@@ -49,6 +53,15 @@ public class CategoryService {
         validateCategory(request);
         Category category = repository.findOne(id);
         category.setName(request.getName());
+
+        Long parentId = request.getParentID();
+        if (parentId != null) {
+            validateParent(parentId);
+            Category parent = repository.findOne(parentId);
+            validateCircularReference(category, parent);
+            category.setParent(parent);
+        }
+
         return save(category);
     }
 
@@ -68,6 +81,23 @@ public class CategoryService {
             String errorMessage = "There is already a category named %s";
             throw new IllegalArgumentException(String.format(errorMessage, dto.getName()));
         }
+    }
+
+    private void validateParent(Long parentId) {
+        if (!exists(parentId)) {
+            throw new IllegalArgumentException("Invalid parentId");
+        }
+    }
+
+    private void validateCircularReference(Category group, Category parent) {
+        if (isCircularReference(group, parent)) {
+            String errorMessage = String.format("Circular reference. Category[%d] has Category[%d] as parent.", parent.getId(), group.getId());
+            throw new IllegalArgumentException(errorMessage);
+        }
+    }
+
+    private boolean isCircularReference(Category group, Category parent) {
+        return parent.getParent() != null && parent.getParent().getId().equals(group.getId());
     }
 
     private CategoryDTO save(Category category) {

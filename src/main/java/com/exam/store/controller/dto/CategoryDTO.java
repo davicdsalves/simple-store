@@ -6,6 +6,7 @@ public class CategoryDTO {
     private Long id;
     @NotNull
     private String name;
+    private Long parentID;
 
     public CategoryDTO() {
     }
@@ -13,6 +14,14 @@ public class CategoryDTO {
     public CategoryDTO(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Long getParentID() {
+        return parentID;
+    }
+
+    public void setParentID(Long parentID) {
+        this.parentID = parentID;
     }
 
     public Long getId() {

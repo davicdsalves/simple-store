@@ -1,8 +1,11 @@
 package com.exam.store.model;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import java.util.Objects;
 
 @Entity
@@ -13,7 +16,15 @@ public class Category {
 
     private String name;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
+    private Category parent;
+
     Category() {}
+
+    public Category(Long id) {
+        this.id = id;
+    }
 
     public Category(String name) {
         this.name = name;
@@ -29,6 +40,14 @@ public class Category {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Category getParent() {
+        return parent;
+    }
+
+    public void setParent(Category parent) {
+        this.parent = parent;
     }
 
     @Override

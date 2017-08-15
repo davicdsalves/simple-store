@@ -20,7 +20,11 @@ public class DTOFactory {
     }
 
     public CategoryDTO createDTO(Category category) {
-        return new CategoryDTO(category.getId(), category.getName());
+        CategoryDTO dto = new CategoryDTO(category.getId(), category.getName());
+        if (category.getParent() != null) {
+            dto.setParentID(category.getParent().getId());
+        }
+        return dto;
     }
 
     public List<ProductDTO> createProductDTOs(Iterable<Product> products) {

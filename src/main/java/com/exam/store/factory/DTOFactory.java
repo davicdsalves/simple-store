@@ -3,6 +3,7 @@ package com.exam.store.factory;
 import com.exam.store.controller.dto.CategoryDTO;
 import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.model.Category;
+import com.exam.store.model.Currency;
 import com.exam.store.model.Product;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +31,9 @@ public class DTOFactory {
 
     public ProductDTO createDTO(Product product) {
         CategoryDTO categoryDTO = this.createDTO(product.getCategory());
-        return new ProductDTO(product.getId(), product.getName(), categoryDTO);
+        ProductDTO dto = new ProductDTO(product.getId(), product.getName(), product.getPrice(), categoryDTO);
+        dto.setCurrency(Currency.EUR.toString());
+        return dto;
     }
 
 

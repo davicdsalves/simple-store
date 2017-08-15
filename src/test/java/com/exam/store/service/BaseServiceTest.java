@@ -24,7 +24,7 @@ public class BaseServiceTest {
     }
 
     ProductDTO createProductDTO(String name, Long categoryId) {
-        return new ProductDTO(1L, name, new CategoryDTO(categoryId, "category"));
+        return new ProductDTO(1L, name, 100L, new CategoryDTO(categoryId, "category"));
     }
 
     ProductDTO createProductDTO(Long categoryId) {

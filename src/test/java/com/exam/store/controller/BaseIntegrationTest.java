@@ -57,7 +57,13 @@ abstract class BaseIntegrationTest {
     }
 
     String createProductBody(CategoryDTO categoryDTO) throws JsonProcessingException {
-        ProductDTO request = new ProductDTO(1L, "product", categoryDTO);
+        ProductDTO request = new ProductDTO(1L, "product", 100L, categoryDTO);
+        return mapper.writeValueAsString(request);
+    }
+
+    String createProductBody(CategoryDTO categoryDTO, Long price, String currency) throws JsonProcessingException {
+        ProductDTO request = new ProductDTO(1L, "product", price, categoryDTO);
+        request.setCurrency(currency);
         return mapper.writeValueAsString(request);
     }
 
@@ -129,7 +135,7 @@ abstract class BaseIntegrationTest {
                 .andExpect(expectedResult);
     }
 
-    ResultActions createProduct(String productBody, ResultMatcher expectedResult) throws Exception {
+    private ResultActions createProduct(String productBody, ResultMatcher expectedResult) throws Exception {
         return mockMvc
                 .perform(put(PRODUCT_ROOT).contentType(MediaType.APPLICATION_JSON).content(productBody))
                 .andExpect(expectedResult);

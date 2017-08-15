@@ -2,6 +2,8 @@ package com.exam.store.controller;
 
 import com.exam.store.controller.dto.CategoryDTO;
 import com.exam.store.service.CategoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +27,7 @@ import static com.exam.store.controller.ControllerConstants.UPDATE_CATEGORY_PATH
 @Controller
 @RequestMapping(CATEGORY_ROOT)
 public class CategoryController {
+    private final Logger logger = LoggerFactory.getLogger(CategoryController.class);
 
     private CategoryService categoryService;
 
@@ -46,6 +49,7 @@ public class CategoryController {
     @PutMapping
     public ResponseEntity<CategoryDTO> create(@RequestBody @Valid CategoryDTO request) {
         CategoryDTO dto = categoryService.save(request);
+        logger.info("Created category. request[{}], response[{}]", request, dto);
         return ResponseEntity.ok(dto);
     }
 
@@ -54,6 +58,7 @@ public class CategoryController {
                                               @RequestBody CategoryDTO request) {
         if (categoryService.exists(id)) {
             CategoryDTO categoryDTO = categoryService.update(id, request);
+            logger.info("Updated category. requestID[{}], request[{}], response[{}]", id, request, categoryDTO);
             return ResponseEntity.ok(categoryDTO);
         }
         return ResponseEntity.notFound().build();
@@ -63,6 +68,7 @@ public class CategoryController {
     public ResponseEntity delete(@PathVariable Long id) {
         if (categoryService.exists(id)) {
             categoryService.delete(id);
+            logger.info("Deleted category. requestID[{}]", id);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();

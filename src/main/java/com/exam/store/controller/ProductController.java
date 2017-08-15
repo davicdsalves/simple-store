@@ -2,6 +2,8 @@ package com.exam.store.controller;
 
 import com.exam.store.controller.dto.ProductDTO;
 import com.exam.store.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,6 +25,8 @@ import static com.exam.store.controller.ControllerConstants.UPDATE_PRODUCT_PATH;
 @Controller
 @RequestMapping(PRODUCT_ROOT)
 public class ProductController {
+    private final Logger logger = LoggerFactory.getLogger(ProductController.class);
+
     private ProductService productService;
 
     public ProductController(ProductService productService) {
@@ -38,6 +42,7 @@ public class ProductController {
     @PutMapping
     public ResponseEntity<ProductDTO> create(@RequestBody @Valid ProductDTO request) {
         ProductDTO dto = productService.save(request);
+        logger.info("Created product. request[{}], response[{}]", request, dto);
         return ResponseEntity.ok(dto);
     }
 
@@ -45,8 +50,9 @@ public class ProductController {
     public ResponseEntity<ProductDTO> update(@PathVariable Long id,
                                               @RequestBody ProductDTO request) {
         if (productService.exists(id)) {
-            ProductDTO ProductDTO = productService.update(id, request);
-            return ResponseEntity.ok(ProductDTO);
+            ProductDTO productDTO = productService.update(id, request);
+            logger.info("Updated product. requestID[{}], request[{}], response[{}]", id, request, productDTO);
+            return ResponseEntity.ok(productDTO);
         }
         return ResponseEntity.notFound().build();
     }
@@ -55,6 +61,7 @@ public class ProductController {
     public ResponseEntity delete(@PathVariable Long id) {
         if (productService.exists(id)) {
             productService.delete(id);
+            logger.info("Deleted product. requestID[{}]", id);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.notFound().build();

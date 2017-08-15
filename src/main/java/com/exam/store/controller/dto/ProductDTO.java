@@ -50,4 +50,14 @@ public class ProductDTO {
         return category;
     }
 
+    @Override
+    public String toString() {
+        return "ProductDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", price=" + price +
+                ", currency='" + currency + '\'' +
+                ", category=" + category +
+                '}';
+    }
 }

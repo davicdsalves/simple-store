@@ -161,6 +161,7 @@ public class CategoryServiceTest extends BaseServiceTest {
         Long parentID = 2L;
 
         Category toBeUpdated = new Category(parentID);
+        toBeUpdated.setName(categoryName);
         when(repository.findOne(parentID)).thenReturn(toBeUpdated);
 
         when(repository.exists(id)).thenReturn(true);
@@ -182,6 +183,7 @@ public class CategoryServiceTest extends BaseServiceTest {
         Long id = 1L;
 
         Category toBeUpdated = new Category(id);
+        toBeUpdated.setName(categoryName);
         when(repository.findOne(id)).thenReturn(toBeUpdated);
         when(repository.exists(id)).thenReturn(true);
 

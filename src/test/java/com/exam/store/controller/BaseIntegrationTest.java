@@ -51,6 +51,13 @@ abstract class BaseIntegrationTest {
         return mapper.writeValueAsString(request);
     }
 
+    String createCategoryBody(String name, Long parentID) throws JsonProcessingException {
+        CategoryDTO request = new CategoryDTO();
+        request.setName(name);
+        request.setParentID(parentID);
+        return mapper.writeValueAsString(request);
+    }
+
     CategoryDTO createRandomCategory() throws Exception {
         String categoryBody = createCategoryBody(getRandomName());
         return createCategory(categoryBody);

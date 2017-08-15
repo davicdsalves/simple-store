@@ -126,4 +126,24 @@ public class CategoryControllerIntegrationTest extends BaseIntegrationTest {
         deleteCategory(categoryDTO.getId());
     }
 
+    @Test
+    @WithMockUser(username = username, password = password)
+    public void shouldSaveCategoryWithParent() throws Exception {
+        String parentBody = createCategoryBody(getRandomName());
+        CategoryDTO parent = createCategory(parentBody);
+
+        String body = createCategoryBody(getRandomName(), parent.getId());
+        CategoryDTO categoryDTO = createCategory(body);
+        assertThat(categoryDTO.getParentID(), is(parent.getId()));
+    }
+
+    @Test
+    @WithMockUser(username = username, password = password)
+    public void shouldFailUpdateCategoryWithCircularParent() throws Exception {
+        String parentBody = createCategoryBody(getRandomName());
+        CategoryDTO parent = createCategory(parentBody);
+        String body = createCategoryBody(getRandomName(), parent.getId());
+        updateCategory(parent.getId(), body, status().isBadRequest());
+    }
+
 }

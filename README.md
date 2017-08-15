@@ -29,8 +29,6 @@ http -a someuser:somepassword GET http://127.0.0.1:8080/v1/category/
 
 echo '{ "name": "Food" }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/category
 echo '{ "name": "Not Food" }' | http -a someuser:somepassword POST http://127.0.0.1:8080/v1/category/4
-echo '{ "parentID": null }' | http -a someuser:somepassword POST http://127.0.0.1:8080/v1/category/4
-
 
 echo '{ "name": "iPhone 6", "price": 54900, "category": { "id": 3 } }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/product
 echo '{ "name": "samsung galaxy", "price": 189900, "currency": "BRL", "category": { "id": 3 } }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/product

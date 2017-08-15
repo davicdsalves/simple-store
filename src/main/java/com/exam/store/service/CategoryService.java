@@ -7,6 +7,7 @@ import com.exam.store.model.Product;
 import com.exam.store.repository.CategoryRepository;
 import com.exam.store.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +53,10 @@ public class CategoryService {
     public CategoryDTO update(Long id, CategoryDTO request) {
         validateCategory(request);
         Category categoryToUpdate = repository.findOne(id);
-        categoryToUpdate.setName(request.getName());
+        if (!categoryToUpdate.getName().equalsIgnoreCase(request.getName())
+                && StringUtils.hasText(request.getName())) {
+            categoryToUpdate.setName(request.getName());
+        }
 
         Long parentId = request.getParentID();
         if (parentId != null) {

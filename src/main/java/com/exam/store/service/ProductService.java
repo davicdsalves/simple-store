@@ -57,7 +57,8 @@ public class ProductService {
     public ProductDTO update(Long id, ProductDTO request) {
         Category category = validateProduct(request);
         Product product = repository.findOne(id);
-        if (!product.getName().equalsIgnoreCase(request.getName())) {
+        if (!product.getName().equalsIgnoreCase(request.getName())
+                && StringUtils.hasText(request.getName())) {
             product.setName(request.getName());
         }
         if (!product.getCategory().equals(category)) {

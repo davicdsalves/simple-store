@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -95,7 +96,7 @@ public class ProductService {
         }
     }
 
-    private Long getCurrencyPrice(ProductDTO dto) {
+    Long getCurrencyPrice(ProductDTO dto) {
         Currency currency = Currency.EUR;
         String productCurrency = dto.getCurrency();
         if (StringUtils.hasText(productCurrency)) {
@@ -105,8 +106,8 @@ public class ProductService {
             String currencyName = currency.toString();
             FixerResponse response = fixerClient.search(currencyName);
             BigDecimal currencyRate = response.getRates().get(currencyName);
-            BigDecimal convertedPrice = currencyRate.multiply(BigDecimal.valueOf(dto.getPrice()));
-            return convertedPrice.longValue();
+            BigDecimal bigDecimalProductPrice = BigDecimal.valueOf(dto.getPrice());
+            return bigDecimalProductPrice.divide(currencyRate, RoundingMode.FLOOR).longValue();
         }
         return dto.getPrice();
     }

@@ -2,6 +2,7 @@ package com.exam.store.controller;
 
 import com.exam.store.controller.dto.CategoryDTO;
 import com.exam.store.controller.dto.ProductDTO;
+import com.exam.store.model.Currency;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -91,6 +92,15 @@ public class ProductControllerIntegrationTest extends BaseIntegrationTest {
         ProductDTO product = createProduct(body);
 
         deleteProduct(product.getId());
+    }
+
+    @Test
+    @WithMockUser(username = username, password = password)
+    public void shouldSaveProductWithDiffCurrency() throws Exception {
+        CategoryDTO category = createRandomCategory();
+        String body = createProductBody(category, 100L, Currency.BRL.toString());
+        ProductDTO product = createProduct(body);
+        assertThat(product.getPrice(), is(26L)); //1,00 BRL -> 0,26 EUR
     }
 
 }

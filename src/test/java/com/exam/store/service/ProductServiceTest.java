@@ -122,12 +122,11 @@ public class ProductServiceTest extends BaseServiceTest {
     }
 
     @Test
-    public void shouldSaveProductWithDiffCurrency() throws Exception {
+    public void shouldGetPriceForCurrencyBRL() throws Exception {
         Long id = 1L;
         String productName = "product";
         String currency = Currency.BRL.toString();
-        when(categoryRepository.findById(id)).thenReturn(Optional.of(createCategory()));
-        when(productRepository.save(any(Product.class))).thenReturn(createProduct());
+
         ProductDTO dto = createProductDTO(productName, id);
         dto.setPrice(100L);
         dto.setCurrency(currency);
@@ -135,11 +134,31 @@ public class ProductServiceTest extends BaseServiceTest {
         fixerResponse.getRates().put(currency, BigDecimal.valueOf(3.7517));
         when(fixerClient.search(currency)).thenReturn(fixerResponse);
 
-        ProductDTO savedDTO = target.save(dto);
-        verify(productRepository).save(any(Product.class));
+        Long targetCurrencyPrice = target.getCurrencyPrice(dto);
+
         verify(fixerClient).search(currency);
-        assertThat(savedDTO.getName(), is(productName));
+        assertThat(targetCurrencyPrice, is(26L));
     }
+
+    @Test
+    public void shouldGetPriceForCurrencyGBP() throws Exception {
+        Long id = 1L;
+        String productName = "product";
+        String currency = Currency.GBP.toString();
+
+        ProductDTO dto = createProductDTO(productName, id);
+        dto.setPrice(100L);
+        dto.setCurrency(currency);
+        FixerResponse fixerResponse = new FixerResponse();
+        fixerResponse.getRates().put(currency, BigDecimal.valueOf(0.90935));
+        when(fixerClient.search(currency)).thenReturn(fixerResponse);
+
+        Long targetCurrencyPrice = target.getCurrencyPrice(dto);
+
+        verify(fixerClient).search(currency);
+        assertThat(targetCurrencyPrice, is(109L));
+    }
+
 
     @Test
     public void shouldUpdate() throws Exception {

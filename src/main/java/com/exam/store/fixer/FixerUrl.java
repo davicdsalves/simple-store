@@ -14,7 +14,7 @@ public class FixerUrl {
         this.properties = properties;
     }
 
-    URI createSearchURI(String currency) {
+    public URI createSearchURI(String currency) {
         String endpoint = properties.getUrl();
 
         return UriComponentsBuilder

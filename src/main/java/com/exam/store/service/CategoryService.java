@@ -51,18 +51,18 @@ public class CategoryService {
 
     public CategoryDTO update(Long id, CategoryDTO request) {
         validateCategory(request);
-        Category category = repository.findOne(id);
-        category.setName(request.getName());
+        Category categoryToUpdate = repository.findOne(id);
+        categoryToUpdate.setName(request.getName());
 
         Long parentId = request.getParentID();
         if (parentId != null) {
             validateParent(parentId);
             Category parent = repository.findOne(parentId);
-            validateCircularReference(category, parent);
-            category.setParent(parent);
+            validateCircularReference(categoryToUpdate, parent);
+            categoryToUpdate.setParent(parent);
         }
 
-        return save(category);
+        return save(categoryToUpdate);
     }
 
     public void delete(Long id) {
@@ -89,15 +89,16 @@ public class CategoryService {
         }
     }
 
-    private void validateCircularReference(Category group, Category parent) {
-        if (isCircularReference(group, parent)) {
-            String errorMessage = String.format("Circular reference. Category[%d] has Category[%d] as parent.", parent.getId(), group.getId());
+    private void validateCircularReference(Category category, Category parent) {
+        if (isCircularReference(category, parent)) {
+            String errorMessage = String.format("Circular reference. Category[%d] has Category[%d] as parent.", parent.getId(), category.getId());
             throw new IllegalArgumentException(errorMessage);
         }
     }
 
-    private boolean isCircularReference(Category group, Category parent) {
-        return parent.getParent() != null && parent.getParent().getId().equals(group.getId());
+    private boolean isCircularReference(Category categoryToUpdate, Category parent) {
+        return (parent.getParent() != null && parent.getParent().getId().equals(categoryToUpdate.getId())) ||
+                categoryToUpdate.getId().equals(parent.getId());
     }
 
     private CategoryDTO save(Category category) {

@@ -114,7 +114,7 @@ public class CategoryServiceTest extends BaseServiceTest {
         when(repository.findByName(categoryName)).thenReturn(Optional.empty());
         when(repository.findOne(id)).thenReturn(category);
         when(repository.save(any(Category.class))).thenReturn(createCategory(categoryName));
-        CategoryDTO savedDTO = target.save(dto);
+        CategoryDTO savedDTO = target.update(id, dto);
         verify(repository).save(any(Category.class));
         assertThat(savedDTO.getName(), is(categoryName));
     }
@@ -134,6 +134,60 @@ public class CategoryServiceTest extends BaseServiceTest {
         when(productRepository.findFirstByCategoryId(id)).thenReturn(Optional.empty());
         target.delete(id);
         verify(repository).delete(id);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailSaveForInvalidParent() throws Exception {
+        String categoryName = "category";
+        when(repository.findByName(categoryName)).thenReturn(Optional.empty());
+        when(repository.save(any(Category.class))).thenReturn(createCategory(categoryName));
+
+        Long id = 1L;
+        Long parentID = 2L;
+        CategoryDTO dto = new CategoryDTO(id, categoryName);
+        dto.setParentID(parentID);
+        when(repository.exists(parentID)).thenReturn(false);
+
+        target.save(dto);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailUpdateForCircularReference() throws Exception {
+        String categoryName = "category";
+        when(repository.findByName(categoryName)).thenReturn(Optional.empty());
+        when(repository.save(any(Category.class))).thenReturn(createCategory(categoryName));
+
+        Long id = 1L;
+        Long parentID = 2L;
+
+        Category toBeUpdated = new Category(parentID);
+        when(repository.findOne(parentID)).thenReturn(toBeUpdated);
+
+        when(repository.exists(id)).thenReturn(true);
+        Category category = new Category(id);
+        category.setParent(toBeUpdated);
+        when(repository.findOne(id)).thenReturn(category);
+
+        CategoryDTO dto = new CategoryDTO(parentID, categoryName);
+        dto.setParentID(id);
+        target.update(parentID, dto);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailUpdateForSameCategoryCircularReference() throws Exception {
+        String categoryName = "category";
+        when(repository.findByName(categoryName)).thenReturn(Optional.empty());
+        when(repository.save(any(Category.class))).thenReturn(createCategory(categoryName));
+
+        Long id = 1L;
+
+        Category toBeUpdated = new Category(id);
+        when(repository.findOne(id)).thenReturn(toBeUpdated);
+        when(repository.exists(id)).thenReturn(true);
+
+        CategoryDTO dto = new CategoryDTO(id, categoryName);
+        dto.setParentID(id);
+        target.update(id, dto);
     }
 
 }

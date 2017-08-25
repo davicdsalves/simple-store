@@ -43,3 +43,4 @@ Some improvements for next version:
 - Use OAuth? Or at least credentials in db. 
 - Add endpoint to remove category parent?
 - Concurrency, use @Version?
+- Add error treatment to fixer integration.

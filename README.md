@@ -33,7 +33,7 @@ http -a someuser:somepassword GET http://127.0.0.1:8080/v1/category/
 
 #Create Food category
 echo '{ "name": "Food" }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/category
-#Create Food category name to Not Food
+#Update Food category name to Not Food
 echo '{ "name": "Not Food" }' | http -a someuser:somepassword POST http://127.0.0.1:8080/v1/category/4
 
 #Add iPhone 6 product, with category 3 (iPhone)

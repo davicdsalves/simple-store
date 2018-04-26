@@ -22,15 +22,23 @@ docker run -p 8080:8080 davicdsalves/simple-store
 Below you can find http requests to reproduce a simple scenario (using https://github.com/jakubroztocil/httpie). 
 
 ```
+#Create Eletronics category
 echo '{ "name": "Eletronics" }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/category
+#Create Mobile category, child of Eletronics
 echo '{ "name": "Mobile", "parentID": 1 }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/category
+#Create iPhone category, child of Mobile
 echo '{ "name": "iPhone", "parentID": 2 }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/category
+#Retrieve all the categories
 http -a someuser:somepassword GET http://127.0.0.1:8080/v1/category/
 
+#Create Food category
 echo '{ "name": "Food" }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/category
+#Create Food category name to Not Food
 echo '{ "name": "Not Food" }' | http -a someuser:somepassword POST http://127.0.0.1:8080/v1/category/4
 
+#Add iPhone 6 product, with category 3 (iPhone)
 echo '{ "name": "iPhone 6", "price": 54900, "category": { "id": 3 } }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/product
+#Creae Samsung product using BRL currency
 echo '{ "name": "samsung galaxy", "price": 189900, "currency": "BRL", "category": { "id": 3 } }' | http -a someuser:somepassword PUT http://127.0.0.1:8080/v1/product
 ```
 
